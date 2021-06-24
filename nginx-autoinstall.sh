@@ -19,6 +19,7 @@ LUA_JIT_VER=2.1-20201229
 LUA_NGINX_VER=0.10.19
 NGINX_DEV_KIT=0.3.1
 NGINX_ECHO_MOD=0.62
+NGINX_NTLM_VER=1.19.3
 
 # Define installation parameters for headless install (fallback if unspecifed)
 if [[ $HEADLESS == "y" ]]; then
@@ -44,7 +45,8 @@ if [[ $HEADLESS == "y" ]]; then
 	SSL=${SSL:-1}
 	RM_CONF=${RM_CONF:-y}
 	RM_LOGS=${RM_LOGS:-y}
-	ECHO_MOD=${ECHO_MOD:-y}
+	ECHO_MOD=${ECHO_MOD:-n}
+	NTLM_MOD=${NTLM_MOD:-n}
 fi
 
 # Clean screen before launching menu
@@ -154,6 +156,9 @@ case $OPTION in
 		while [[ $ECHO_MOD != 'y' && $ECHO_MOD != 'n' ]]; do
 			read -rp "	nginx ECHO module? [y/n]: " -e -i n ECHO_MOD
 		done
+		while [[ $NTLM_MOD != 'y' && $NTLM_MOD != 'n' ]]; do
+			read -rp "	nginx NTLM module? [y/n]: " -e -i n NTLM_MOD
+		done
 		if [[ $HTTP3 != 'y' ]]; then
 			echo ""
 			echo "Choose your OpenSSL implementation:"
@@ -235,7 +240,13 @@ case $OPTION in
 		wget https://github.com/openresty/echo-nginx-module/archive/refs/tags/v${NGINX_ECHO_MOD}.tar.gz
 		tar xaf v${NGINX_ECHO_MOD}.tar.gz
 	fi
-
+	
+	# NTLM Module
+	if [[ $NTLM_MOD == 'y' ]]; then
+		cd /usr/local/src/nginx/modules || exit 1
+		git clone https://github.com/gabihodoroaga/nginx-ntlm-module.git
+	fi
+	
 	# GeoIP
 	if [[ $GEOIP == 'y' ]]; then
 		cd /usr/local/src/nginx/modules || exit 1
@@ -430,6 +441,12 @@ case $OPTION in
 			echo "--add-module=/usr/local/src/nginx/modules/echo-nginx-module-${NGINX_ECHO_MOD}"
 		)
 
+	fi
+	if [[ $NTLM_MOD == 'y' ]]; then
+		NGINX_MODULES=$(
+			echo "$NGINX_MODULES"
+			echo "--add-module=/usr/local/src/nginx/modules/nginx-ntlm-module"
+		)
 	fi
 	if [[ $GEOIP == 'y' ]]; then
 		NGINX_MODULES=$(
