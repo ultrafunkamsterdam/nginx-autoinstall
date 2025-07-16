@@ -8,6 +8,7 @@ fi
 
 # Define versions
 
+
 NGINX_MAINLINE_VER=${NGINX_MAINLINE_VER:-1.21.6}
 NGINX_STABLE_VER=${NGINX_STABLE_VER:-1.22.0}
 LIBRESSL_VER=${LIBRESSL_VER:-3.3.1}
@@ -51,6 +52,7 @@ NGINX_MODULES=${NGINX_MODULES:-"--with-threads \
 	--with-http_realip_module \	
 	--with-http_sub_module"}
 
+
 # Define installation parameters for headless install (fallback if unspecifed)
 if [[ $HEADLESS == "y" ]]; then
 	# Define options
@@ -78,10 +80,11 @@ if [[ $HEADLESS == "y" ]]; then
 	SETMISC=${SETMISC:-n}
 	NGXECHO=${NGXECHO:-n}
 	HPACK=${HPACK:-n}
+	SUBFILTER=${SUBFILTER:-n}
 	SSL=${SSL:-1}
 	RM_CONF=${RM_CONF:-y}
 	RM_LOGS=${RM_LOGS:-y}
-        ECHO_MOD=${ECHO_MOD:-y}
+	ECHO_MOD=${ECHO_MOD:-y}
 fi
 
 # Clean screen before launching menu
@@ -188,7 +191,6 @@ case $OPTION in
 		if [[ $MODSEC == 'y' ]]; then
 			read -rp "       Enable nginx ModSecurity? [y/n]: " -e -i n MODSEC_ENABLE
 		fi
-
 		while [[ $REDIS2 != "y" && $REDIS2 != "n" ]]; do
 			read -rp "       redis2-nginx-module [y/n]: " -e -i n REDIS2
 		done
@@ -210,6 +212,7 @@ case $OPTION in
 				read -rp "       Enter your Maxmind account id: " -e GEOIP2_ACCOUNT_ID
 				read -rp "       Enter your Maxmind license key: " -e GEOIP2_LICENSE_KEY
 		fi
+
 
 		if [[ $HTTP3 != 'y' ]]; then
 			echo ""
@@ -294,15 +297,13 @@ case $OPTION in
 		wget https://github.com/openresty/headers-more-nginx-module/archive/v${HEADERMOD_VER}.tar.gz
 		tar xaf v${HEADERMOD_VER}.tar.gz
 	fi
+	# Echo Module
+	if [[ $ECHO_MOD == 'y' ]]; then
 
-        # Echo Module
-        if [[ $ECHO_MOD == 'y' ]] ; then
-
-               cd /usr/local/src/nginx/modules || exit 1
-               wget https://github.com/openresty/echo-nginx-module/archive/refs/tags/v${NGINX_ECHO_MOD}.tar.gz
-               tar xaf v${NGINX_ECHO_MOD}.tar.gz
-        fi
-
+		cd /usr/local/src/nginx/modules || exit 1
+		wget https://github.com/openresty/echo-nginx-module/archive/refs/tags/v${NGINX_ECHO_MOD}.tar.gz
+		tar xaf v${NGINX_ECHO_MOD}.tar.gz
+	fi
 	# GeoIP
 	if [[ $GEOIP == 'y' ]]; then
 			cd /usr/local/src/nginx/modules || exit 1
@@ -537,13 +538,15 @@ case $OPTION in
 			echo "--add-module=/usr/local/src/nginx/modules/headers-more-nginx-module-${HEADERMOD_VER}"
 		)
 	fi
-        if [[ $ECHO_MOD == 'y' ]] ; then
-               NGINX_MODULES=$(
-                        echo "$NGINX_MODULES"
-                        echo "--add-module=/usr/local/src/nginx/modules/echo-nginx-module-${NGINX_ECHO_MOD}"
-               )
 
-        fi
+	if [[ $ECHO_MOD == 'y' ]]; then
+		NGINX_MODULES=$(
+			echo "$NGINX_MODULES"
+			echo "--add-module=/usr/local/src/nginx/modules/echo-nginx-module-${NGINX_ECHO_MOD}"
+		)
+
+	fi
+
 	if [[ $GEOIP == 'y' ]]; then
 		NGINX_MODULES=$(
 			echo "$NGINX_MODULES"
