@@ -188,7 +188,7 @@ case $OPTION in
 		if [[ $MODSEC == 'y' ]]; then
 			read -rp "       Enable nginx ModSecurity? [y/n]: " -e -i n MODSEC_ENABLE
 		fi
-<<<<<<< HEAD
+
 		while [[ $REDIS2 != "y" && $REDIS2 != "n" ]]; do
 			read -rp "       redis2-nginx-module [y/n]: " -e -i n REDIS2
 		done
@@ -211,11 +211,6 @@ case $OPTION in
 				read -rp "       Enter your Maxmind license key: " -e GEOIP2_LICENSE_KEY
 		fi
 
-=======
-                while [[ $ECHO_MOD != 'y' && $ECHO_MOD != 'n' ]]; do
-                        read -rp "	nginx ECHO module? [y/n]: " -e -i n ECHO_MOD
-                done
->>>>>>> 0abc61b (added nginx ECHO module option)
 		if [[ $HTTP3 != 'y' ]]; then
 			echo ""
 			echo "Choose your OpenSSL implementation:"
